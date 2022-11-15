@@ -1,61 +1,73 @@
 from django.contrib import admin
+from django.utils.html import format_html
 
-from .models import (Amount, Cart, Favorite, Follow, Ingredient, Recipe, Tag,
-                     TagRecipe)
+from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                     ShoppingCart, Tag)
 
-
-class AmountAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'ingredient', 'amount', 'recipe')
-    search_fields = ('ingredient',)
-    empty_value_display = '-пусто-'
+admin.site.empty_value_display = '-пусто-'
 
 
-class CartsAdmin(admin.ModelAdmin):
+class RecipeIngredientInline(admin.TabularInline):
+    model = RecipeIngredient
+
+
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
     list_display = ('pk', 'user', 'recipe')
-    search_fields = ('user__username', 'author__username')
+    search_fields = ('user', 'recipe')
+    list_filter = ('user', 'recipe')
 
 
-class FavoritesAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user', 'recipe')
-    search_fields = ('user__username', 'recipe__name')
-    empty_value_display = '-пусто-'
-
-
-class FollowAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user', 'author')
-    search_fields = ('user__username', 'author__username')
-
-
-class IngredientsAdmin(admin.ModelAdmin):
+@admin.register(Ingredient)
+class IngredientAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'measurement_unit')
+    list_display_links = ('name',)
     search_fields = ('name',)
-    empty_value_display = '-пусто-'
+    list_filter = ('name',)
 
 
-class RecipesAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'author', 'name', 'text', 'cooking_time', 'image',
-                    'pub_date')
-    search_fields = ('author__username', 'name')
-    empty_value_display = '-пусто-'
+@admin.register(Recipe)
+class RecipeAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'author', 'name', 'get_favorite_list_size')
+    list_display_links = ('name',)
+    search_fields = ('name',)
+    list_filter = ('name', 'author', 'tags')
+    fields = ('author', 'name', 'text', 'image', 'cooking_time', 'tags',
+              'get_favorite_list_size')
+    readonly_fields = ('get_favorite_list_size',)
+    inlines = (RecipeIngredientInline,)
+
+    def get_favorite_list_size(self, obj):
+        return Favorite.objects.filter(recipe=obj).count()
+
+    get_favorite_list_size.short_description = 'Добавления рецепта в избранное'
 
 
-class TagsAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'slug', 'color')
-    search_fields = ('name', 'slug')
-    empty_list_display = '-пусто-'
+@admin.register(RecipeIngredient)
+class RecipeIngredientAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'recipe', 'amount', 'ingredient')
+    list_display_links = ('ingredient',)
+    search_fields = ('ingredient__name',)
+    list_filter = ('ingredient',)
 
 
-class TagsRecipesAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'tag', 'recipe')
-    search_fields = ('tag__name', 'recipe__name')
-    empty_list_display = '-пусто-'
+@admin.register(ShoppingCart)
+class ShoppingCartAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'user', 'recipe')
+    search_fields = ('user', 'recipe')
+    list_filter = ('user', 'recipe')
 
 
-admin.site.register(Amount, AmountAdmin)
-admin.site.register(Cart, CartsAdmin)
-admin.site.register(Favorite, FavoritesAdmin)
-admin.site.register(Follow, FollowAdmin)
-admin.site.register(Ingredient, IngredientsAdmin)
-admin.site.register(Recipe, RecipesAdmin)
-admin.site.register(Tag, TagsAdmin)
-admin.site.register(TagRecipe, TagsRecipesAdmin)
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'name', 'get_color', 'slug')
+    list_display_links = ('name',)
+    list_filter = ('name',)
+    search_fields = ('name',)
+
+    def get_color(self, obj):
+        return format_html(
+            f'<spawn style="color: {obj.color};">{obj.color}</spawn>'
+        )
+
+    get_color.short_description = 'Цвет'
