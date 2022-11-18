@@ -23,7 +23,7 @@ services:
   frontend:
     container_name: foodgram-frontend
     build:
-      context: ../frontend
+      context: ./frontend
       dockerfile: Dockerfile
     volumes:
       - ../foodgram_app/frontend/:/app/result_build/
