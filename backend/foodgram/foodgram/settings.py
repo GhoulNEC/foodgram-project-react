@@ -13,7 +13,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', default='django-insecure-#7p06&nv!g+v!z)#+0
 DEBUG = os.getenv('DEBUG', default=False)
 
 ALLOWED_HOSTS = [
-    os.getenv('ALLOWED_HOSTS'),
+    os.getenv('ALLOWED_HOSTS', default='*'),
 ]
 
 
@@ -64,16 +64,24 @@ TEMPLATES = [
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
-        'NAME': os.getenv('DB_NAME', default='postgres'),
-        'USER': os.getenv('POSTGRES_USER', default='postgres'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='postgres'),
-        'HOST': os.getenv('DB_HOST', default='db'),
-        'PORT': os.getenv('DB_PORT', default='5432'),
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3')
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
+            'NAME': os.getenv('DB_NAME', default='postgres'),
+            'USER': os.getenv('POSTGRES_USER', default='postgres'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='postgres'),
+            'HOST': os.getenv('DB_HOST', default='db'),
+            'PORT': os.getenv('DB_PORT', default='5432'),
+        }
+    }
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -137,6 +145,8 @@ DJOSER = {
 
 MAX_SIGNUP_PARAMS_LENGTH = 150
 MAX_EMAIL_LENGTH = 254
+MAX_MODEL_FIELD_NAME_LENGTH = 200
+MAX_MODEL_FIELD_COLOR_LENGTH = 7
 MIN_COOKING_TIME = 1
 MIN_INGREDIENT_AMOUNT = 1
 VALIDATOR_MESSAGE = 'Число не может быть меньше {min_value}'

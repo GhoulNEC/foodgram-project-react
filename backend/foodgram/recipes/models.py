@@ -2,24 +2,26 @@ from colorfield.fields import ColorField
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
+
 from users.models import CustomUser
 
 
 class Tag(models.Model):
     name = models.CharField(
-        max_length=150,
+        max_length=settings.MAX_MODEL_FIELD_NAME_LENGTH,
         unique=True,
         verbose_name='Тег',
         help_text='Введите название Тега'
     )
     color = ColorField(
+        max_length=settings.MAX_MODEL_FIELD_COLOR_LENGTH,
         format='hexa',
         unique=True,
         verbose_name='HEX-код цвета',
         help_text='Введите цветовой HEX-код'
     )
     slug = models.SlugField(
-        max_length=150,
+        max_length=settings.MAX_MODEL_FIELD_NAME_LENGTH,
         unique=True,
         verbose_name='Slug тега',
         help_text='Введите slug тега'
@@ -36,12 +38,12 @@ class Tag(models.Model):
 
 class Ingredient(models.Model):
     name = models.CharField(
-        max_length=150,
+        max_length=settings.MAX_MODEL_FIELD_NAME_LENGTH,
         verbose_name='Название ингредиента',
         help_text='Введите название ингредиента'
     )
     measurement_unit = models.CharField(
-        max_length=30,
+        max_length=settings.MAX_MODEL_FIELD_NAME_LENGTH,
         verbose_name='Единица измерения',
         help_text='Введите единицу измерения'
     )
@@ -52,7 +54,7 @@ class Ingredient(models.Model):
         verbose_name_plural = 'Ингредиенты'
 
     def __str__(self):
-        return f'{self.name} - {self.measurement_unit}'
+        return f'{self.name} {self.measurement_unit}'
 
 
 class Recipe(models.Model):
@@ -63,7 +65,7 @@ class Recipe(models.Model):
         verbose_name='Автор'
     )
     name = models.CharField(
-        max_length=150,
+        max_length=settings.MAX_MODEL_FIELD_NAME_LENGTH,
         db_index=True,
         verbose_name='Название рецепта',
         help_text='Введите название рецепта'
@@ -76,7 +78,6 @@ class Recipe(models.Model):
         help_text='Добавьте изображение Вашего блюда'
     )
     text = models.TextField(
-        max_length=1300,
         verbose_name='Описание рецепта',
         help_text='Введите описание рецепта'
     )
@@ -100,7 +101,8 @@ class Recipe(models.Model):
                     min_value=settings.MIN_COOKING_TIME
                 )
             )
-        ]
+        ],
+        verbose_name='Время приготовления'
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,

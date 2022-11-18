@@ -1,28 +1,30 @@
 from django.db.models import Sum
-from django.http.response import HttpResponse
-from django.shortcuts import get_object_or_404
 from djoser import views as djoser_views
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart, Tag)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
-from users.models import CustomUser, Follow
 
 from .filters import IngredientFilter, RecipeFilter
+from .mixins import AddDelMixin
 from .pagination import CustomPagination
+from .pdf_generator import generate_pdf
 from .permissions import IsAdminOrAuthor
 from .serializers import (FavoriteSerializer, FollowerSerializer,
                           FollowSerializer, IngredientSerializer,
                           ListRecipeSerializer, RecipeSerializer,
                           ShoppingCartSerializer, TagSerializer,
                           UserSerializer)
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
+from users.models import CustomUser, Follow
 
 
-class UserViewSet(djoser_views.UserViewSet):
+class UserViewSet(djoser_views.UserViewSet, AddDelMixin):
     serializer_class = UserSerializer
+    mixin_serializer = FollowSerializer
+    model_class = CustomUser
     queryset = CustomUser.objects.all()
     pagination_class = CustomPagination
 
@@ -39,28 +41,8 @@ class UserViewSet(djoser_views.UserViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(detail=True, methods=['post', 'delete'])
-    def subscribe(self, request, id=None):
-        user = request.user
-        author = get_object_or_404(CustomUser, id=id)
-        if request.method == 'POST':
-            serializer = FollowerSerializer(
-                data={'author': author.id},
-                context={'request': request}
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            serializer = FollowSerializer(author)
-            return Response(
-                data=serializer.data,
-                status=status.HTTP_201_CREATED
-            )
-        subscription = get_object_or_404(
-            Follow,
-            user=user,
-            author=author
-        )
-        subscription.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def subscribe(self, request, id):
+        return self.add_del(request, Follow, FollowerSerializer, id, True)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -73,29 +55,14 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ['^name']
 
 
-class RecipeViewSet(viewsets.ModelViewSet):
+class RecipeViewSet(viewsets.ModelViewSet, AddDelMixin):
     serializer_class = RecipeSerializer
+    mixin_serializer = ListRecipeSerializer
+    model_class = Recipe
     queryset = Recipe.objects.all().order_by('-id')
     permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrAuthor]
     pagination_class = CustomPagination
     filterset_class = RecipeFilter
-
-    def add_del(self, request, model, serializer, pk):
-        user = request.user
-        recipe = get_object_or_404(Recipe, id=pk)
-        if request.method == 'POST':
-            serializer = serializer(
-                data={'recipe': recipe.id},
-                context={'request': request}
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            serializer = ListRecipeSerializer(recipe)
-            return Response(data=serializer.data,
-                            status=status.HTTP_201_CREATED)
-        obj = get_object_or_404(model, user=user, recipe=recipe)
-        obj.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
@@ -116,15 +83,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'ingredient__name',
             'ingredient__measurement_unit'
         ).order_by('ingredient__name').annotate(Sum('amount'))
-        content = ['Список ингредиентов:\n\n']
-        content.extend(f'{index + 1}. {item["ingredient__name"]} '
-                       f'({item["ingredient__measurement_unit"]}) - '
-                       f'{item["amount__sum"]}\n'
-                       for index, item in enumerate(shopping_list))
-        response = HttpResponse(content, content_type='text/plain')
-        response['Content-Disposition'] = ('attachment; '
-                                           'filename="shopping_list.txt"')
-        return response
+        return generate_pdf(shopping_list)
 
 
 class TagViewSet(viewsets.ModelViewSet):

@@ -28,7 +28,8 @@ class IngredientAdmin(admin.ModelAdmin):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'author', 'name', 'get_favorite_list_size')
+    list_display = ('pk', 'author', 'name', 'get_ingredients', 'cooking_time',
+                    'get_favorite_list_size', 'get_tags')
     list_display_links = ('name',)
     search_fields = ('name',)
     list_filter = ('name', 'author', 'tags')
@@ -40,7 +41,15 @@ class RecipeAdmin(admin.ModelAdmin):
     def get_favorite_list_size(self, obj):
         return Favorite.objects.filter(recipe=obj).count()
 
+    def get_tags(self, obj):
+        return list(obj.tags.all())
+
+    def get_ingredients(self, obj):
+        return list(RecipeIngredient.objects.filter(recipe=obj))
+
     get_favorite_list_size.short_description = 'Добавления рецепта в избранное'
+    get_tags.short_description = 'Теги'
+    get_ingredients.short_description = 'Ингредиенты'
 
 
 @admin.register(RecipeIngredient)
