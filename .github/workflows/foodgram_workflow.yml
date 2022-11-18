@@ -67,16 +67,16 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram-backend:latest
 
       - name: Build and push failure message
-          if: ${{ failure() }}
-          uses: appleboy/telegram-action@master
-          with:
-            to: ${{ secrets.TELEGRAM_TO }}
-            token: ${{ secrets.TELEGRAM_TOKEN }}
-            message: |
-              Ошибка сборки/отправки образа ${{ github.repository }}
-              https://github.com/${{ github.actor }}/${{ github.repository }}/action/runs/${{ github.run_id }}
-              login_dockerhub: ${{ steps.login_dockerhub.outcome }}
-              push_backend: ${{ steps.push_backend.outcome }} 
+        if: ${{ failure() }}
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            Ошибка сборки/отправки образа ${{ github.repository }}
+            https://github.com/${{ github.actor }}/${{ github.repository }}/action/runs/${{ github.run_id }}
+            login_dockerhub: ${{ steps.login_dockerhub.outcome }}
+            push_backend: ${{ steps.push_backend.outcome }} 
 
   deploy:
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
