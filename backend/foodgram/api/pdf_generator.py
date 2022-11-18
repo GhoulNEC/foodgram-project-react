@@ -4,7 +4,7 @@ from reportlab.lib.units import cm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen.canvas import Canvas
-from reportlab.platypus import Paragraph, Frame
+from reportlab.platypus import Frame, Paragraph
 
 
 def generate_pdf(obj):

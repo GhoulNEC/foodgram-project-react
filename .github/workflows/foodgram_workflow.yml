@@ -27,6 +27,7 @@ jobs:
       - name: Test with flake8, django tests and pytest
         id: test_flake8
         run: |
+          cd backend/
           python -m flake8
 
       - name: Tests failure message
