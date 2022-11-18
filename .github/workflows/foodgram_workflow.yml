@@ -37,7 +37,7 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
             Ошибка тестирования ${{ github.repository }}
-            https://github.com/${{ github.actor }}/${{ github.repository }}/action/runs/${{ github.run_id }}
+            https://github.com/${{ github.repository }}/action/runs/${{ github.run_id }}
             install_dependencies: ${{ steps.install_dependencies.outcome }}
             test_flake8: ${{ steps.test_flake8.outcome }} 
 
@@ -74,7 +74,7 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
             Ошибка сборки/отправки образа ${{ github.repository }}
-            https://github.com/${{ github.actor }}/${{ github.repository }}/action/runs/${{ github.run_id }}
+            https://github.com/${{ github.repository }}/action/runs/${{ github.run_id }}
             login_dockerhub: ${{ steps.login_dockerhub.outcome }}
             push_backend: ${{ steps.push_backend.outcome }} 
 
@@ -114,7 +114,7 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
             Ошибка деплоя ${{ github.repository }}
-            https://github.com/${{ github.actor }}/${{ github.repository }}/action/runs/${{ github.run_id }}
+            https://github.com/${{ github.repository }}/action/runs/${{ github.run_id }}
 
   send_message:
     runs-on: ubuntu-latest
