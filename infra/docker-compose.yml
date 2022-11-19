@@ -22,9 +22,7 @@ services:
 
   frontend:
     container_name: foodgram-frontend
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: ghoulnec/foodgram-frontend:latest
     volumes:
       - ../foodgram_app/frontend/:/app/result_build/
     depends_on:
