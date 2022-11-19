@@ -44,6 +44,7 @@ services:
       - ../foodgram_app/media_value:/var/www/media_backend/
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/car/www/certbot
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     depends_on:
       - frontend
 
@@ -53,8 +54,7 @@ services:
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/car/www/certbot
-    depends_on:
-      - nginx
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
 volumes:
   postgres_data:
