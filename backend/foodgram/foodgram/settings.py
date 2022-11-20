@@ -8,7 +8,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ENV_PATH = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'infra', '.env')
 load_dotenv(dotenv_path=ENV_PATH)
 
-SECRET_KEY = os.getenv('SECRET_KEY', default='django-insecure-#7p06&nv!g+v!z)#+05(&lak6nul7a7z5rcw$x=ws0zr&5o0&&')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = os.getenv('DEBUG', default=False)
 
