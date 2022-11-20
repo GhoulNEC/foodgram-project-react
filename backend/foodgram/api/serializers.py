@@ -1,14 +1,14 @@
 from django.conf import settings
 from djoser import serializers as djoser_serializers
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart, Tag)
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 from rest_framework.validators import UniqueTogetherValidator
-from users.models import CustomUser, Follow
 
 from .validators import UniqueFieldsValidator
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
+from users.models import CustomUser, Follow
 
 
 class UserSerializer(djoser_serializers.UserSerializer):
