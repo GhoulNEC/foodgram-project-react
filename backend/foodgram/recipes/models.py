@@ -14,7 +14,7 @@ class Tag(models.Model):
     )
     color = ColorField(
         max_length=settings.MAX_MODEL_FIELD_COLOR_LENGTH,
-        format='hexa',
+        format='hex',
         unique=True,
         verbose_name='HEX-код цвета',
         help_text='Введите цветовой HEX-код'
