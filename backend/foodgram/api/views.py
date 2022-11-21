@@ -1,24 +1,24 @@
 from django.db.models import Sum
 from djoser import views as djoser_views
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart, Tag)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
-from users.models import CustomUser, Follow
 
-from .filters import IngredientFilter, RecipeFilter
-from .mixins import AddDelMixin
-from .pagination import CustomPagination
-from .pdf_generator import generate_pdf
-from .permissions import IsAdminOrAuthor
-from .serializers import (FavoriteSerializer, FollowerSerializer,
-                          FollowSerializer, IngredientSerializer,
-                          ListRecipeSerializer, RecipeSerializer,
-                          ShoppingCartSerializer, TagSerializer,
-                          UserSerializer)
+from api.filters import IngredientFilter, RecipeFilter
+from api.mixins import AddDelMixin
+from api.pagination import CustomPagination
+from api.pdf_generator import generate_pdf
+from api.permissions import IsAdminOrAuthor
+from api.serializers import (FavoriteSerializer, FollowerSerializer,
+                             FollowSerializer, IngredientSerializer,
+                             ListRecipeSerializer, RecipeSerializer,
+                             ShoppingCartSerializer, TagSerializer,
+                             UserSerializer)
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
+from users.models import CustomUser, Follow
 
 
 class UserViewSet(djoser_views.UserViewSet, AddDelMixin):
